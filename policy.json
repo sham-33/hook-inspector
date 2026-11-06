@@ -1,1 +1,4 @@
-{"protected_paths":[".env",".git","secrets"]}
+{
+  "protected_paths": [".env", ".git", "secrets"],
+  "format_on_edit": true
+}

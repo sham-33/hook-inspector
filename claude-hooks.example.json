@@ -5,8 +5,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 /Users/shambutn/personal/hook-inspector/hook.py",
-            "timeout": 5
+            "command": "/opt/homebrew/opt/python@3.14/bin/python3.14 /Users/shambutn/personal/hook-inspector/hook.py",
+            "timeout": 20
           }
         ]
       }
@@ -16,8 +16,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 /Users/shambutn/personal/hook-inspector/hook.py",
-            "timeout": 5
+            "command": "/opt/homebrew/opt/python@3.14/bin/python3.14 /Users/shambutn/personal/hook-inspector/hook.py",
+            "timeout": 20
           }
         ]
       }
@@ -27,8 +27,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 /Users/shambutn/personal/hook-inspector/hook.py",
-            "timeout": 5
+            "command": "/opt/homebrew/opt/python@3.14/bin/python3.14 /Users/shambutn/personal/hook-inspector/hook.py",
+            "timeout": 20
           }
         ]
       }
@@ -38,8 +38,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 /Users/shambutn/personal/hook-inspector/hook.py",
-            "timeout": 5
+            "command": "/opt/homebrew/opt/python@3.14/bin/python3.14 /Users/shambutn/personal/hook-inspector/hook.py",
+            "timeout": 20
           }
         ]
       }
@@ -49,8 +49,19 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 /Users/shambutn/personal/hook-inspector/hook.py",
-            "timeout": 5
+            "command": "/opt/homebrew/opt/python@3.14/bin/python3.14 /Users/shambutn/personal/hook-inspector/hook.py",
+            "timeout": 20
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/opt/python@3.14/bin/python3.14 /Users/shambutn/personal/hook-inspector/hook.py",
+            "timeout": 20
           }
         ]
       }

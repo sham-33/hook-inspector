@@ -1,0 +1,27 @@
+{
+  "name": "hook-inspector",
+  "version": "1.0.0",
+  "description": "Local hook inspector with automatic formatting and Claude Code integration",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "start": "python3 manage.py start",
+    "test": "python3 -m unittest discover -s tests -v"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sham-33/hook-inspector.git"
+  },
+  "keywords": [],
+  "author": "",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/sham-33/hook-inspector/issues"
+  },
+  "homepage": "https://github.com/sham-33/hook-inspector#readme",
+  "devDependencies": {
+    "prettier": "3.9.10"
+  },
+  "private": true
+}
