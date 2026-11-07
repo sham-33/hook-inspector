@@ -2,12 +2,13 @@
   "name": "hook-inspector",
   "version": "1.0.0",
   "description": "Local hook inspector with automatic formatting and Claude Code integration",
-  "directories": {
-    "test": "tests"
-  },
   "scripts": {
-    "start": "python3 manage.py start",
-    "test": "python3 -m unittest discover -s tests -v"
+    "build": "tsc && esbuild src/client.ts --bundle --format=esm --target=es2022 --outfile=dist/public/app.js",
+    "typecheck": "tsc --noEmit",
+    "start": "node dist/src/manage.js start",
+    "hooks:install": "node dist/src/manage.js install",
+    "hooks:uninstall": "node dist/src/manage.js uninstall",
+    "test": "npm run build && node --test dist/tests/*.test.js"
   },
   "repository": {
     "type": "git",
@@ -15,13 +16,19 @@
   },
   "keywords": [],
   "author": "",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/sham-33/hook-inspector/issues"
   },
   "homepage": "https://github.com/sham-33/hook-inspector#readme",
   "devDependencies": {
-    "prettier": "3.9.10"
+    "@types/node": "26.6.6",
+    "esbuild": "0.28.2",
+    "prettier": "3.9.10",
+    "typescript": "7.0.2"
   },
-  "private": true
+  "private": true,
+  "engines": {
+    "node": ">=22.13"
+  }
 }
