@@ -32,6 +32,7 @@ The adapter starts the receiver in the background if needed, including after a r
 - Live SessionStart, PreToolUse, PostToolUse, PostToolUseFailure, Stop and SessionEnd events.
 - Search by path, tool or session, filter decisions, inspect details and export the latest 1,000 events.
 - Labeled demo events do not edit files.
+- **Clear demo data** appears beside Run demo sequence when demo records exist. It deletes only demo events, updates the dashboard, and hides when none remain.
 - Protected Write/Edit/MultiEdit targets default to `.env`, `.git` and `secrets`.
 - Automatic formatting after successful edits: Ruff for Python; Prettier for JS/TS, JSON, CSS/SCSS, HTML, Markdown and YAML.
 
@@ -55,7 +56,7 @@ npm test
 npm run build
 ```
 
-Strict TypeScript checks cover both browser and server code. The 17 Node test-runner tests cover policy, symlinks, malformed payloads, privacy, legacy SQLite data, formatting, settings migration, HTTP endpoints, cross-origin/body limits, and a subprocess hook invocation. CI runs on Node 22 and 24 on macOS and Linux, installing Ruff to test Python formatting too.
+Strict TypeScript checks cover both browser and server code. The 19 Node test-runner tests cover policy, symlinks, malformed payloads, privacy, legacy SQLite data, formatting, settings migration, HTTP endpoints, cross-origin/body limits, and a subprocess hook invocation. CI runs on Node 22 and 24 on macOS and Linux, installing Ruff to test Python formatting too.
 
 ## Source layout
 

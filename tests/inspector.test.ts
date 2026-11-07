@@ -252,3 +252,57 @@ test("HTTP endpoints, body limits, origin checks and hook adapter", async (t) =>
   );
   assert.ok(!JSON.stringify(store.list()).includes("SECRET"));
 });
+
+test("demo cleanup deletes only demo records, including outside the visible window", (t) => {
+  const store = new EventStore(":memory:");
+  t.after(() => store.close());
+  assert.equal(store.demoCount(), 0);
+  store.inspect({ demo: true });
+  for (let i = 0; i < 1001; i++) store.inspect({ session_id: "real" });
+  assert.equal(
+    store.list().some((e) => e.demo),
+    false,
+  );
+  assert.equal(store.demoCount(), 1);
+  assert.equal(store.clearDemo(), 1);
+  assert.equal(store.demoCount(), 0);
+  assert.equal(
+    store.db.prepare("SELECT count(*) AS count FROM events").get()!.count,
+    1001,
+  );
+  assert.equal(store.clearDemo(), 0);
+});
+
+test("demo cleanup API protects real events and rejects cross-origin deletion", async (t) => {
+  const store = new EventStore(":memory:"),
+    server = createApp(store);
+  store.inspect({ demo: true });
+  store.inspect({ session_id: "real" });
+  server.listen(0, "127.0.0.1");
+  await once(server, "listening");
+  t.after(() => {
+    server.closeAllConnections();
+    server.close();
+    store.close();
+  });
+  const address = server.address();
+  assert.ok(address && typeof address !== "string");
+  const url = `http://127.0.0.1:${address.port}/api/demo`;
+  assert.deepEqual(await fetch(url).then((r) => r.json()), { count: 1 });
+  assert.equal(
+    (
+      await fetch(url, {
+        method: "DELETE",
+        headers: { Origin: "https://example.com" },
+      })
+    ).status,
+    403,
+  );
+  assert.equal(store.demoCount(), 1);
+  assert.deepEqual(
+    await fetch(url, { method: "DELETE" }).then((r) => r.json()),
+    { deleted: 1 },
+  );
+  assert.equal(store.list()[0]?.session, "real");
+  assert.deepEqual(await fetch(url).then((r) => r.json()), { count: 0 });
+});

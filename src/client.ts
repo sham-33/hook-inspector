@@ -1,10 +1,12 @@
 import type { EventRecord, Policy } from "./types.js";
 
 let events: EventRecord[] = [];
+let demoCount = 0;
 interface Elements {
   search: HTMLInputElement;
   filter: HTMLSelectElement;
   demo: HTMLButtonElement;
+  "clear-demo": HTMLButtonElement;
   export: HTMLButtonElement;
   total: HTMLElement;
   allowed: HTMLElement;
@@ -21,6 +23,7 @@ const $ = <K extends keyof Elements>(id: K): Elements[K] => {
   return element as Elements[K];
 };
 function render() {
+  $("clear-demo").hidden = demoCount === 0;
   $("total").textContent = String(events.length);
   $("allowed").textContent = String(
     events.filter((e) => e.status === "allowed").length,
@@ -60,9 +63,13 @@ function render() {
 }
 async function refresh() {
   try {
-    const r = await fetch("/api/events");
-    if (!r.ok) throw Error();
+    const [r, demo] = await Promise.all([
+      fetch("/api/events"),
+      fetch("/api/demo"),
+    ]);
+    if (!r.ok || !demo.ok) throw Error();
     events = await r.json();
+    demoCount = (await demo.json()).count;
     render();
     $("connection").textContent = "● Receiver online";
   } catch {
@@ -74,6 +81,7 @@ $("filter").onchange = render;
 $("demo").onclick = async () => {
   const b = $("demo");
   b.disabled = true;
+  $("clear-demo").disabled = true;
   try {
     for (const [event, tool, path] of [
       ["SessionStart", "", ""],
@@ -101,6 +109,23 @@ $("demo").onclick = async () => {
     $("details").textContent = (e as Error).message;
   } finally {
     b.disabled = false;
+    $("clear-demo").disabled = false;
+  }
+};
+$("clear-demo").onclick = async () => {
+  $("clear-demo").disabled = true;
+  $("demo").disabled = true;
+  try {
+    const response = await fetch("/api/demo", { method: "DELETE" });
+    if (!response.ok)
+      throw Error("Could not clear demo data. Please try again.");
+    $("details").textContent = "Select an event to inspect its metadata.";
+    await refresh();
+  } catch (error) {
+    $("details").textContent = (error as Error).message;
+  } finally {
+    $("clear-demo").disabled = false;
+    $("demo").disabled = false;
   }
 };
 $("export").onclick = () => {
