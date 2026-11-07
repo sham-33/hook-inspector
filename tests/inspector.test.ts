@@ -253,27 +253,23 @@ test("HTTP endpoints, body limits, origin checks and hook adapter", async (t) =>
   assert.ok(!JSON.stringify(store.list()).includes("SECRET"));
 });
 
-test("demo cleanup deletes only demo records, including outside the visible window", (t) => {
-  const store = new EventStore(":memory:");
-  t.after(() => store.close());
-  assert.equal(store.demoCount(), 0);
+test("clear removes all events beyond the visible window and persists an empty database", (t) => {
+  const dir = fixture(t),
+    path = resolve(dir, "events.sqlite3");
+  const store = new EventStore(path);
   store.inspect({ demo: true });
   for (let i = 0; i < 1001; i++) store.inspect({ session_id: "real" });
-  assert.equal(
-    store.list().some((e) => e.demo),
-    false,
-  );
-  assert.equal(store.demoCount(), 1);
-  assert.equal(store.clearDemo(), 1);
-  assert.equal(store.demoCount(), 0);
-  assert.equal(
-    store.db.prepare("SELECT count(*) AS count FROM events").get()!.count,
-    1001,
-  );
-  assert.equal(store.clearDemo(), 0);
+  assert.equal(store.clear(), 1002);
+  assert.deepEqual(store.list(), []);
+  assert.equal(store.clear(), 0);
+  store.close();
+  const reopened = new EventStore(path);
+  assert.deepEqual(reopened.list(), []);
+  reopened.inspect({ session_id: "new" });
+  assert.equal(reopened.list().length, 1);
+  reopened.close();
 });
-
-test("demo cleanup API protects real events and rejects cross-origin deletion", async (t) => {
+test("clear API removes demo and real records and rejects cross-origin deletion", async (t) => {
   const store = new EventStore(":memory:"),
     server = createApp(store);
   store.inspect({ demo: true });
@@ -287,8 +283,7 @@ test("demo cleanup API protects real events and rejects cross-origin deletion", 
   });
   const address = server.address();
   assert.ok(address && typeof address !== "string");
-  const url = `http://127.0.0.1:${address.port}/api/demo`;
-  assert.deepEqual(await fetch(url).then((r) => r.json()), { count: 1 });
+  const url = `http://127.0.0.1:${address.port}/api/events`;
   assert.equal(
     (
       await fetch(url, {
@@ -298,11 +293,10 @@ test("demo cleanup API protects real events and rejects cross-origin deletion", 
     ).status,
     403,
   );
-  assert.equal(store.demoCount(), 1);
+  assert.equal(store.list().length, 2);
   assert.deepEqual(
     await fetch(url, { method: "DELETE" }).then((r) => r.json()),
-    { deleted: 1 },
+    { deleted: 2 },
   );
-  assert.equal(store.list()[0]?.session, "real");
-  assert.deepEqual(await fetch(url).then((r) => r.json()), { count: 0 });
+  assert.deepEqual(await fetch(url).then((r) => r.json()), []);
 });

@@ -1,12 +1,13 @@
 import type { EventRecord, Policy } from "./types.js";
 
 let events: EventRecord[] = [];
-let demoCount = 0;
+let refreshVersion = 0;
+let clearing = false;
 interface Elements {
   search: HTMLInputElement;
   filter: HTMLSelectElement;
   demo: HTMLButtonElement;
-  "clear-demo": HTMLButtonElement;
+  "clear-data": HTMLButtonElement;
   export: HTMLButtonElement;
   total: HTMLElement;
   allowed: HTMLElement;
@@ -23,7 +24,7 @@ const $ = <K extends keyof Elements>(id: K): Elements[K] => {
   return element as Elements[K];
 };
 function render() {
-  $("clear-demo").hidden = demoCount === 0;
+  $("clear-data").hidden = events.length === 0;
   $("total").textContent = String(events.length);
   $("allowed").textContent = String(
     events.filter((e) => e.status === "allowed").length,
@@ -63,13 +64,13 @@ function render() {
 }
 async function refresh() {
   try {
-    const [r, demo] = await Promise.all([
-      fetch("/api/events"),
-      fetch("/api/demo"),
-    ]);
-    if (!r.ok || !demo.ok) throw Error();
-    events = await r.json();
-    demoCount = (await demo.json()).count;
+    if (clearing) return;
+    const version = ++refreshVersion;
+    const r = await fetch("/api/events");
+    if (!r.ok) throw Error();
+    const received: EventRecord[] = await r.json();
+    if (version !== refreshVersion || clearing) return;
+    events = received;
     render();
     $("connection").textContent = "● Receiver online";
   } catch {
@@ -81,7 +82,7 @@ $("filter").onchange = render;
 $("demo").onclick = async () => {
   const b = $("demo");
   b.disabled = true;
-  $("clear-demo").disabled = true;
+  $("clear-data").disabled = true;
   try {
     for (const [event, tool, path] of [
       ["SessionStart", "", ""],
@@ -109,22 +110,27 @@ $("demo").onclick = async () => {
     $("details").textContent = (e as Error).message;
   } finally {
     b.disabled = false;
-    $("clear-demo").disabled = false;
+    $("clear-data").disabled = false;
   }
 };
-$("clear-demo").onclick = async () => {
-  $("clear-demo").disabled = true;
+$("clear-data").onclick = async () => {
+  clearing = true;
+  ++refreshVersion;
+  $("clear-data").disabled = true;
   $("demo").disabled = true;
   try {
-    const response = await fetch("/api/demo", { method: "DELETE" });
-    if (!response.ok)
-      throw Error("Could not clear demo data. Please try again.");
+    const response = await fetch("/api/events", { method: "DELETE" });
+    if (!response.ok) throw Error("Could not clear data. Please try again.");
+    events = [];
+    $("search").value = "";
+    $("filter").value = "";
     $("details").textContent = "Select an event to inspect its metadata.";
-    await refresh();
+    render();
   } catch (error) {
     $("details").textContent = (error as Error).message;
   } finally {
-    $("clear-demo").disabled = false;
+    clearing = false;
+    $("clear-data").disabled = false;
     $("demo").disabled = false;
   }
 };

@@ -32,7 +32,7 @@ The adapter starts the receiver in the background if needed, including after a r
 - Live SessionStart, PreToolUse, PostToolUse, PostToolUseFailure, Stop and SessionEnd events.
 - Search by path, tool or session, filter decisions, inspect details and export the latest 1,000 events.
 - Labeled demo events do not edit files.
-- **Clear demo data** appears beside Run demo sequence when demo records exist. It deletes only demo events, updates the dashboard, and hides when none remain.
+- **Clear data** appears beside Run demo sequence when any records exist. It deletes all saved events (demo and real), resets the counters and details, and hides when empty. New live agent activity is recorded normally.
 - Protected Write/Edit/MultiEdit targets default to `.env`, `.git` and `secrets`.
 - Automatic formatting after successful edits: Ruff for Python; Prettier for JS/TS, JSON, CSS/SCSS, HTML, Markdown and YAML.
 

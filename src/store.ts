@@ -82,21 +82,8 @@ export class EventStore {
           }) as EventRecord,
       );
   }
-  demoCount(): number {
-    return Number(
-      this.db
-        .prepare(
-          "SELECT count(*) AS count FROM events WHERE json_extract(data, '$.demo') = 1",
-        )
-        .get()!.count,
-    );
-  }
-  clearDemo(): number {
-    return Number(
-      this.db
-        .prepare("DELETE FROM events WHERE json_extract(data, '$.demo') = 1")
-        .run().changes,
-    );
+  clear(): number {
+    return Number(this.db.prepare("DELETE FROM events").run().changes);
   }
   close() {
     this.db.close();

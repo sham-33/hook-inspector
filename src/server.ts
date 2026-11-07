@@ -24,11 +24,9 @@ export function createApp(store = new EventStore()) {
         req.headers.origin !== `http://${req.headers.host}`
       )
         return send(403, { error: "Cross-origin requests rejected" });
-      if (req.method === "DELETE" && req.url === "/api/demo")
-        return send(200, { deleted: store.clearDemo() });
+      if (req.method === "DELETE" && req.url === "/api/events")
+        return send(200, { deleted: store.clear() });
       if (req.method === "GET") {
-        if (req.url === "/api/demo")
-          return send(200, { count: store.demoCount() });
         if (req.url === "/api/health")
           return send(200, {
             service: "hook-inspector-ts-v1",
